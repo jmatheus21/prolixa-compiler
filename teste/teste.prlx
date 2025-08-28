@@ -1,0 +1,22 @@
+This is program Teste.
+
+It presents:
+alterable number Num;
+alterable symbol Tempo;
+unalterable symbol Symb;
+vector of number (2) Vetor;
+alterable number Numero;
+
+Let us begin:
+Num := 10 + 3;
+Tempo = 'i' + 'j';
+Symb = 'c';
+
+just in case that (Num == 10) do show(Symb);
+
+considering Numero from 0 to 3 by 1 do [
+    show(Numero);
+	just in case that (Numero == 1) do abandon;
+]
+
+That would be all.

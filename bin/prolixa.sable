@@ -1,0 +1,267 @@
+Package prolixa;
+
+Helpers
+ conteudo_str = [32 .. 33] | [35 .. 255];
+ conteudo_coment = [0 .. 124] | [126..255];
+ caracter = [0 .. 255];
+ ltr_mai = ['A' .. 'Z'];
+ ltr_min = ['a' .. 'z'];
+ digito = ['0' .. '9'];
+ barra_invertida = '\';
+ apostrofo = ''';
+ underscore = '_';
+ espaco = ' ';
+ rc = 13;
+ nl = 10;
+ ht = 9;
+ 
+Tokens
+ this = 'This';
+ is = 'is';
+ program = 'program';
+ it = 'It';
+ presents = 'presents';
+ let = 'Let';
+ us = 'us';
+ begin = 'begin';
+ that = 'That';
+ would = 'would';
+ be = 'be';
+ all = 'all';
+ alterable = 'alterable';
+ unalterable = 'unalterable';
+ vector = 'vector';
+ of = 'of'; 
+ matriz = 'x';
+ capture = 'capture';
+ show = 'show';
+ just = 'just';
+ in = 'in';
+ case = 'case';
+ that_min = 'that';
+ do = 'do';
+ otherwise = 'otherwise';
+ as = 'as';
+ long = 'long';
+ considering = 'considering';
+ from = 'from';
+ to = 'to';
+ by = 'by';
+ next = 'next';
+ abandon = 'abandon';
+ go = 'go';
+ iteration = 'iteration';
+ number = 'number';
+ answer = 'answer';
+ symbol = 'symbol';
+ soma = '+';
+ menos = '-';
+ mult = '*';
+ div = '/';
+ div_int = '//';
+ igual = '==';
+ dif = '!=';
+ men_igual = '<=';
+ mai_igual = '>=';
+ menor = '<';
+ maior = '>';
+ not = '!';
+ and = 'and';
+ or = 'or';
+ xor = 'xor';
+ atr_const = '=';
+ atr_var = ':=';
+ par_esq = '(';
+ par_dir = ')';
+ col_esq = '[';
+ col_dir = ']';
+ ponto = '.';
+ virgula = ',';
+ dois_pnts = ':';
+ pnt_virg = ';';
+ symbol_val = ''' (caracter | barra_invertida('n' | 't' | barra_invertida | apostrofo)) ''';
+ answer_val = 'yes' | 'no';
+ number_val = digito+ ('.' digito+)?;
+ string = '"' (conteudo_str | '\"')* '"';
+ comentario = '{' conteudo_coment* '}';
+ id = ltr_mai (ltr_min | ltr_mai | underscore)*;
+ vazio = (espaco | rc | nl | ht)+;
+
+
+Ignored Tokens
+ vazio, comentario;
+ 
+ 
+Productions
+ 
+ programa {-> a_programa} = 
+ 	this is program id ponto declaracoes? comandos? {-> New a_programa.ar_programa(declaracoes.a_declaracoes, comandos.a_comandos)};
+ 
+ declaracoes {-> a_declaracoes} =  
+ 	it presents dois_pnts declaracao+ {-> New a_declaracoes.ar_declaracoes([declaracao.a_declaracao])};
+ 
+ declaracao {-> a_declaracao} = 
+ 	{variavel} alterable tipo id pnt_virg {-> New a_declaracao.a_variavel(tipo.a_declaracao, id)}
+ 	|{constante} unalterable tipo id atribuicao_const? pnt_virg {-> New a_declaracao.a_constante(tipo.a_declaracao, atribuicao_const.a_declaracao, id)}
+ 	|{vetor} vector of tipo par_esq exp termos_matriz* par_dir id pnt_virg {-> New a_declaracao.a_vetor(tipo.a_declaracao, exp.a_exp, [termos_matriz.a_declaracao], id)};
+ 	
+ comandos {-> a_comandos} =
+ 	{comandos} let us begin dois_pnts comando+ that would be all ponto {-> New a_comandos.ar_comandos([comando.a_comando])};
+ 
+ termos_matriz {-> a_declaracao} = 
+ 	matriz exp {-> New a_declaracao.a_matriz(matriz, exp.a_exp)};
+ 
+ tipo {-> a_declaracao} =
+ 	{number} number {-> New a_declaracao.a_number(number)}
+ 	|{symbol} symbol {-> New a_declaracao.a_symbol(symbol)}
+ 	|{answer} answer {-> New a_declaracao.a_answer(answer)};
+
+ var {-> a_var} =
+ 	{identificador} id {-> New a_var.a_identificador(id)}
+ 	|{acesso_vector} id par_esq exp virgula_exp* par_dir {-> New a_var.a_acesso_vector(id, exp.a_exp, [virgula_exp.a_var])};
+ 
+ unalt {-> a_unalt} = id {-> New a_unalt.ar_unalt(id)};
+ 
+ valor {-> a_exp} =
+ 	{numero} number_val {-> New a_exp.a_number_val(number_val)}
+ 	|{char} symbol_val {-> New a_exp.a_symbol_val(symbol_val)}
+ 	|{string} string {-> New a_exp.a_string(string)}
+ 	|{boolean} answer_val {-> New a_exp.a_answer_val(answer_val)}; 
+ 
+ comando {-> a_comando} =
+    {comando_simples} comando_simples {-> comando_simples.a_comando}
+    |{just_in_case_that} just in case that_min par_esq exp par_dir do corpo_comando condicional? 
+    {-> New a_comando.a_just_in_case_that(exp.a_exp, corpo_comando.a_comando, condicional.a_comando)}
+    |{as_long_as} as long [as2]:as par_esq exp par_dir do corpo_comando
+	{-> New a_comando.a_as_long(exp.a_exp, corpo_comando.a_comando)}
+    |{considering} considering var from exp to [exp2]:exp by [exp3]:exp do corpo_comando
+	{-> New a_comando.a_considering(var.a_var, exp.a_exp, exp2.a_exp, exp3.a_exp, corpo_comando.a_comando)};
+    
+ condicional {-> a_comando}= otherwise do corpo_comando {-> New a_comando.a_condicional(corpo_comando.a_comando)};
+    
+ corpo_comando {-> a_comando} =
+    {comando_simples} comando_simples {-> comando_simples.a_comando}
+    |{bloco} bloco {-> bloco.a_comando};
+    
+ comando_simples {-> a_comando} =
+    {atrib_var} var atr_var exp pnt_virg {-> New a_comando.a_atr_var(var.a_var, exp.a_exp)}
+    |{atrib_const} id atr_const exp pnt_virg {-> New a_comando.a_atrib_const(id, exp.a_exp)}
+    |{capture} capture par_esq var_virgula* var par_dir pnt_virg {-> New a_comando.a_capture([var_virgula.a_comando], var.a_var)}
+    |{show} show par_esq exp_virgula* exp par_dir pnt_virg {-> New a_comando.a_show([exp_virgula.a_comando], exp.a_exp)}
+    |{abandon} abandon pnt_virg {-> New a_comando.a_abandon(abandon, pnt_virg)}
+    |{go_to_next_i} go to next iteration pnt_virg {-> New a_comando.a_go_to_next_i(go, to, next, iteration, pnt_virg)};
+ 
+ bloco {-> a_comando} = col_esq declaracao* comando* col_dir {-> New a_comando.a_bloco([declaracao.a_declaracao],[comando.a_comando])};
+
+ virgula_exp {-> a_var} = virgula exp {-> New a_var.a_virgula_exp(exp.a_exp)};
+ 
+ atribuicao_const {-> a_declaracao} = atr_const exp {-> New a_declaracao.a_atribuicao_const(exp.a_exp)};
+  
+ var_virgula {-> a_comando} = var virgula {-> New a_comando.a_var_virgula(var.a_var)};
+ 
+ exp_virgula {-> a_comando} = exp virgula {-> New a_comando.a_exp_virgula(exp.a_exp)};
+ 
+ exp {-> a_exp} = 
+ 	{exp_or} [esq]:exp or [dir]:exp_and {-> New a_exp.a_exp_or(esq.a_exp, dir.a_exp)}
+ 	|{exp_and} exp_and {-> exp_and.a_exp};
+ 	
+ exp_and {-> a_exp} =
+ 	{exp_and_op} [esq]:exp_and and [dir]:exp_xor {-> New a_exp.a_exp_and_or(esq.a_exp, dir.a_exp)}
+ 	|{exp_xor} exp_xor {-> exp_xor.a_exp};
+ 	
+ exp_xor {-> a_exp} =
+ 	{exp_xor_op} [esq]:exp_xor xor [dir]:exp_igualdade {-> New a_exp.a_exp_xor_op(esq.a_exp, dir.a_exp)}
+ 	|{exp_igualdade} exp_igualdade {-> exp_igualdade.a_exp};
+ 	
+ exp_igualdade {-> a_exp} =
+ 	{exp_igual} [esq]:exp_igualdade igual [dir]:exp_relacional {-> New a_exp.a_exp_igual(esq.a_exp, dir.a_exp)}
+ 	|{exp_dif} [esq]:exp_igualdade dif [dir]:exp_relacional {-> New a_exp.a_exp_dif(esq.a_exp, dir.a_exp)}
+ 	|{exp_relacional} exp_relacional {-> exp_relacional.a_exp};
+ 	
+ exp_relacional {-> a_exp} =
+ 	{exp_menor} [esq]:exp_relacional menor [dir]:exp_aditivo {-> New a_exp.a_exp_menor(esq.a_exp, dir.a_exp)}
+ 	|{exp_maior} [esq]:exp_relacional maior [dir]:exp_aditivo {-> New a_exp.a_exp_maior(esq.a_exp, dir.a_exp)}
+ 	|{exp_men_igual} [esq]:exp_relacional men_igual [dir]:exp_aditivo {-> New a_exp.a_exp_men_igual(esq.a_exp, dir.a_exp)}
+ 	|{exp_mai_igual} [esq]:exp_relacional mai_igual [dir]:exp_aditivo {-> New a_exp.a_exp_mai_igual(esq.a_exp, dir.a_exp)}
+ 	|{exp_aditivo} exp_aditivo {-> exp_aditivo.a_exp};
+ 	
+ exp_aditivo {-> a_exp} =
+ 	{exp_soma} [esq]:exp_aditivo soma [dir]:exp_multiplicativo {-> New a_exp.a_exp_soma(esq.a_exp, dir.a_exp)}
+	|{exp_menos} [esq]:exp_aditivo menos [dir]:exp_multiplicativo {-> New a_exp.a_exp_menos(esq.a_exp, dir.a_exp)}
+	|{exp_multiplicativo} exp_multiplicativo {-> exp_multiplicativo.a_exp};
+ 
+ exp_multiplicativo {-> a_exp} =
+ 	{exp_mult} [esq]:exp_multiplicativo mult [dir]:exp_unario {-> New a_exp.a_exp_mult(esq.a_exp, dir.a_exp)}
+ 	|{exp_div} [esq]:exp_multiplicativo div [dir]:exp_unario {-> New a_exp.a_exp_div(esq.a_exp, dir.a_exp)}
+ 	|{exp_div_int} [esq]:exp_multiplicativo div_int [dir]:exp_unario {-> New a_exp.a_exp_div_int(esq.a_exp, dir.a_exp)}
+ 	|{exp_unario} exp_unario {-> exp_unario.a_exp};
+ 	
+ exp_unario {-> a_exp} =
+ 	{exp_negativo} menos exp_unario {-> New a_exp.a_exp_negativo(exp_unario.a_exp)}
+ 	|{exp_not} not exp_unario {-> New a_exp.a_exp_not(exp_unario.a_exp)}
+ 	|{exp_term} exp_term {-> exp_term.a_exp};
+ 	
+ exp_term {-> a_exp} =
+    {var} var {-> New a_exp.a_exp_var(var.a_var)}
+ 	|{parenteses} par_esq exp par_dir {-> exp.a_exp}
+ 	|{valor} valor {-> valor.a_exp};
+ 
+ Abstract Syntax Tree
+ 
+ a_programa = {ar_programa} a_declaracoes? a_comandos?;
+ 
+ a_declaracoes = {ar_declaracoes} a_declaracao*;
+ 
+ a_comandos = {ar_comandos} a_comando*;
+ 
+ a_declaracao = {a_variavel} [tipo]:a_declaracao id
+ 		| {a_constante}  [tipo]:a_declaracao [atribuicao_const]:a_declaracao? id
+ 		| {a_vetor} [tipo]:a_declaracao a_exp [matriz]:a_declaracao* id
+ 		| {a_matriz} matriz a_exp
+ 		| {a_number} number
+ 		| {a_symbol} symbol
+ 		| {a_answer} answer
+		| {a_atr_const} a_exp
+		| {a_atribuicao_const} a_exp;
+ 
+ a_exp = {a_exp_or} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_and_or} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_xor_op} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_igual} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_dif} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_maior} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_menor} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_men_igual} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_mai_igual} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_soma} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_menos} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_mult} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_div} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_div_int} [dir]:a_exp [esq]:a_exp
+ 	| {a_exp_negativo} a_exp
+ 	| {a_exp_not} a_exp
+ 	| {a_number_val} number_val
+ 	| {a_symbol_val} symbol_val
+ 	| {a_string} string
+ 	| {a_answer_val} answer_val
+	| {a_exp_var} a_var;
+
+ a_var = {a_identificador} id
+	| {a_acesso_vector} id a_exp a_var*
+	| {a_virgula_exp} a_exp;
+
+ a_unalt = {ar_unalt} id;
+
+ a_comando = {a_just_in_case_that} a_exp [corpo]:a_comando [cond]:a_comando?
+	| {a_as_long} a_exp a_comando
+	| {a_considering} a_var [exp1]:a_exp [exp2]:a_exp [exp3]:a_exp a_comando
+	| {a_condicional} a_comando
+	| {a_atr_var} a_var a_exp
+    | {a_atrib_const} id a_exp
+    | {a_capture} a_comando* a_var
+    | {a_show} a_comando* a_exp
+    | {a_abandon} abandon pnt_virg
+    | {a_go_to_next_i} go to next iteration pnt_virg
+    | {a_bloco} a_declaracao* a_comando*
+    | {a_var_virgula} a_var
+    | {a_exp_virgula} a_exp; 

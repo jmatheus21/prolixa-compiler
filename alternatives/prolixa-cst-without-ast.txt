@@ -1,0 +1,201 @@
+Package prolixa;
+
+Helpers
+ conteudo_str = [32 .. 33] | [35 .. 255];
+ conteudo_coment = [0 .. 124] | [126..255];
+ caracter = [0 .. 255];
+ ltr_mai = ['A' .. 'Z'];
+ ltr_min = ['a' .. 'z'];
+ digito = ['0' .. '9'];
+ barra_invertida = '\';
+ apostrofo = ''';
+ underscore = '_';
+ espaco = ' ';
+ rc = 13;
+ nl = 10;
+ ht = 9;
+ 
+Tokens
+ this = 'This';
+ is = 'is';
+ program = 'program';
+ it = 'It';
+ presents = 'presents';
+ let = 'Let';
+ us = 'us';
+ begin = 'begin';
+ that = 'That';
+ would = 'would';
+ be = 'be';
+ all = 'all';
+ alterable = 'alterable';
+ unalterable = 'unalterable';
+ vector = 'vector';
+ of = 'of'; 
+ matriz = 'x';
+ capture = 'capture';
+ show = 'show';
+ just = 'just';
+ in = 'in';
+ case = 'case';
+ that_min = 'that';
+ do = 'do';
+ otherwise = 'otherwise';
+ as = 'as';
+ long = 'long';
+ considering = 'considering';
+ from = 'from';
+ to = 'to';
+ by = 'by';
+ next = 'next';
+ abandon = 'abandon';
+ go = 'go';
+ iteration = 'iteration';
+ number = 'number';
+ answer = 'answer';
+ symbol = 'symbol';
+ soma = '+';
+ menos = '-';
+ mult = '*';
+ div = '/';
+ div_int = '//';
+ igual = '==';
+ dif = '!=';
+ men_igual = '<=';
+ mai_igual = '>=';
+ menor = '<';
+ maior = '>';
+ not = '!';
+ and = 'and';
+ or = 'or';
+ xor = 'xor';
+ atr_const = '=';
+ atr_var = ':=';
+ par_esq = '(';
+ par_dir = ')';
+ col_esq = '[';
+ col_dir = ']';
+ ponto = '.';
+ virgula = ',';
+ dois_pnts = ':';
+ pnt_virg = ';';
+ symbol_val = ''' (caracter | barra_invertida('n' | 't' | barra_invertida | apostrofo)) ''';
+ answer_val = 'yes' | 'no';
+ number_val = digito+ ('.' digito+)?;
+ string = '"' (conteudo_str | '\"')* '"';
+ comentario = '{' conteudo_coment* '}';
+ id = ltr_mai (ltr_min | ltr_mai | underscore)*;
+ vazio = (espaco | rc | nl | ht)+;
+
+
+Ignored Tokens
+ vazio, comentario;
+ 
+ 
+Productions
+ 
+ programa = this is program id ponto declaracoes? comandos?;
+ 
+ declaracoes =  it presents dois_pnts declaracao+;
+ 
+ declaracao = 
+ 	{variavel} alterable tipo id pnt_virg
+ 	|{constante} unalterable tipo id atribuicao_const? pnt_virg
+ 	|{vetor} vector of tipo par_esq exp termos_matriz* par_dir id pnt_virg;
+ 	
+ comandos =
+ 	{comandos} let us begin dois_pnts comando+ that would be all ponto;
+ 	
+ termos_matriz = matriz exp;
+ 
+ tipo =
+ 	{number} number
+ 	|{symbol} symbol
+ 	|{answer} answer;
+ 	
+ var =
+ 	{identificador} id
+ 	|{acesso_vector} id par_esq exp virgula_exp* par_dir; 
+ 
+ unalt = id;
+ 
+ valor =
+ 	{numero} number_val
+ 	|{char} symbol_val
+ 	|{string} string
+ 	|{boolean} answer_val; 
+ 	
+ comando =
+    {comando_simples} comando_simples
+    |{just_in_case_that} just in case that_min par_esq exp par_dir do corpo_comando condicional?
+    |{as_long_as} as long [as2]:as par_esq exp par_dir do corpo_comando
+    |{considering} considering var from exp to [exp2]:exp by [exp3]:exp do corpo_comando;
+    
+ condicional = otherwise do corpo_comando;
+    
+ corpo_comando =
+    {comando_simples} comando_simples
+    |{bloco} bloco;
+    
+ comando_simples =
+    {atrib_var} var atr_var exp pnt_virg
+    |{atrib_const} id atr_const exp pnt_virg
+    |{capture} capture par_esq var_virgula* var par_dir pnt_virg
+    |{show} show par_esq exp_virgula* exp par_dir pnt_virg
+    |{abandon} abandon pnt_virg
+    |{go_to_next_i} go to next iteration pnt_virg;
+ 
+ bloco = col_esq declaracao* comando* col_dir;
+
+ virgula_exp = virgula exp;
+ 
+ atribuicao_const = atr_const exp;
+  
+ var_virgula = var virgula;
+ 
+ exp_virgula = exp virgula;
+ 	
+ exp = 
+ 	{exp_or} exp or exp_and
+ 	|{exp_and} exp_and;
+ 	
+ exp_and =
+ 	{exp_and_op} exp_and and exp_xor
+ 	|{exp_xor} exp_xor;
+ 	
+ exp_xor =
+ 	{exp_xor_op} exp_xor xor exp_igualdade
+ 	|{exp_igualdade} exp_igualdade;
+ 	
+ exp_igualdade =
+ 	{exp_igual} exp_igualdade igual exp_relacional
+ 	|{exp_dif} exp_igualdade dif exp_relacional
+ 	|{exp_relacional} exp_relacional;
+ 	
+ exp_relacional =
+ 	{exp_menor} exp_relacional menor exp_aditivo
+ 	|{exp_maior} exp_relacional maior exp_aditivo
+ 	|{exp_men_igual} exp_relacional men_igual exp_aditivo
+ 	|{exp_mai_igual} exp_relacional mai_igual exp_aditivo
+ 	|{exp_aditivo} exp_aditivo;
+ 	
+ exp_aditivo =
+ 	{exp_soma} exp_aditivo soma exp_multiplicativo
+	|{exp_menos} exp_aditivo menos exp_multiplicativo
+	|{exp_multiplicativo} exp_multiplicativo;
+ 
+ exp_multiplicativo =
+ 	{exp_mult} exp_multiplicativo mult exp_unario 
+ 	|{exp_div} exp_multiplicativo div exp_unario
+ 	|{exp_div_int} exp_multiplicativo div_int exp_unario
+ 	|{exp_unario} exp_unario;
+ 	
+ exp_unario =
+ 	{exp_negativo} menos exp_unario
+ 	|{exp_not} not exp_unario
+ 	|{exp_term} exp_term;
+ 	
+ exp_term =
+ 	{var} var
+ 	|{parenteses} par_esq exp par_dir
+ 	|{valor} valor;
