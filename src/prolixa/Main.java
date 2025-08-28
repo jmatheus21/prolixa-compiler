@@ -10,7 +10,7 @@ public class Main
 	{
 		try
 		{
-			String arquivo = "teste/teste.prlx";
+			String arquivo = "testcode/test.prlx";
 
 			Parser p = 
 					new Parser(
