@@ -2,12 +2,9 @@ package prolixa.symboltable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 public class SymbolTable {
 
-    private static final Logger logger = Logger.getLogger(SymbolInfo.class.getName());
     private LinkedList<HashMap<HashTableKey, SymbolInfo>> list = new LinkedList<>();
 
     /**
@@ -15,7 +12,6 @@ public class SymbolTable {
      */
     public void push () {
         list.addFirst(new HashMap<HashTableKey, SymbolInfo>());
-        logger.info("New scope created!");
     }
 
     /**
@@ -23,7 +19,6 @@ public class SymbolTable {
      * @return removed element
      */
     public HashMap<HashTableKey, SymbolInfo> pop () {
-        logger.info("Removing scope...");
         return list.removeFirst();
     }
 
@@ -32,7 +27,6 @@ public class SymbolTable {
      * @return top hash table
      */
     public HashMap<HashTableKey, SymbolInfo> getTop () {
-        logger.info("Getting current scope...");
         return list.getFirst();
     }
 
@@ -47,7 +41,6 @@ public class SymbolTable {
         }
         var table = list.getFirst();
         table.put(new HashTableKey(key), info);
-        logger.info("Element " + key + " added to current scope");
     }
 
     /**
@@ -56,15 +49,12 @@ public class SymbolTable {
      * @return element related to the identifier
      */
     public SymbolInfo find (String key) {
-        for (int i = 0; i < this.list.size(); i++) {
-            var table = list.get(i);
+        for (var table : this.list) {
             var element = table.get(new HashTableKey(key));
             if (element != null) {
-                logger.info("Element found successfully!");
                 return element;
             }
         }
-        logger.log(Level.WARNING, "No element with key " + key + " found!");
         return null;
     }
 
@@ -78,6 +68,16 @@ public class SymbolTable {
             System.out.println("Could not find " + key);
         } else {
             System.out.println("Identifier: " + key + "\n" + element.toString());
+        }
+    }
+
+    public void printAll () {
+        System.out.println("Imprimindo todos os elementos:");
+        for (var table : this.list) {
+            for (var element : table.entrySet()){
+            	System.out.println("===================================");
+            	System.out.println(element.getKey().toString() + element.getValue().toString());
+            }
         }
     }
 

@@ -2470,7 +2470,13 @@ public class Parser
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList2 = pop();
         @SuppressWarnings("unused") ArrayList<Object> nodeArrayList1 = pop();
         PAExp paexpNode1;
-        paexpNode1 = (PAExp)nodeArrayList2.get(0);
+        {
+            // Block
+        PAExp paexpNode2;
+        paexpNode2 = (PAExp)nodeArrayList2.get(0);
+
+        paexpNode1 = new AAExpParentesesAExp(paexpNode2);
+        }
 	nodeList.add(paexpNode1);
         return nodeList;
     }

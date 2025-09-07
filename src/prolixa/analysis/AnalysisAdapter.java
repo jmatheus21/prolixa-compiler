@@ -243,6 +243,12 @@ public class AnalysisAdapter implements Analysis
     }
 
     @Override
+    public void caseAAExpParentesesAExp(AAExpParentesesAExp node)
+    {
+        defaultCase(node);
+    }
+
+    @Override
     public void caseAANumberValAExp(AANumberValAExp node)
     {
         defaultCase(node);

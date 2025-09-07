@@ -724,6 +724,27 @@ public class ReversedDepthFirstAdapter extends AnalysisAdapter
         outAAExpNotAExp(node);
     }
 
+    public void inAAExpParentesesAExp(AAExpParentesesAExp node)
+    {
+        defaultIn(node);
+    }
+
+    public void outAAExpParentesesAExp(AAExpParentesesAExp node)
+    {
+        defaultOut(node);
+    }
+
+    @Override
+    public void caseAAExpParentesesAExp(AAExpParentesesAExp node)
+    {
+        inAAExpParentesesAExp(node);
+        if(node.getAExp() != null)
+        {
+            node.getAExp().apply(this);
+        }
+        outAAExpParentesesAExp(node);
+    }
+
     public void inAANumberValAExp(AANumberValAExp node)
     {
         defaultIn(node);

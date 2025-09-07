@@ -1,18 +1,29 @@
 package prolixa.symboltable;
 
+import prolixa.prolixa.Type;
+
 public class SymbolInfo {
 
-    private String type;
+    private final Type type;
     private Boolean isInitialized;
-    private Boolean isMutable;
+    private final Boolean isMutable;
+    private final int[] dimensions;
  
-    public SymbolInfo (String type, Boolean isInitialized, Boolean isMutable) {
+    public SymbolInfo (Type type, Boolean isInitialized, Boolean isMutable) {
         this.type = type;
         this.isInitialized = isInitialized;
         this.isMutable = isMutable;
+        this.dimensions = null;
+    }
+    
+    public SymbolInfo (Type type, Boolean isInitialized, Boolean isMutable, int[] dimensions) {
+        this.type = type;
+        this.isInitialized = isInitialized;
+        this.isMutable = isMutable;
+        this.dimensions = dimensions;
     }
 
-    public String getType () {
+    public Type getType () {
         return type;
     }
 
@@ -23,17 +34,17 @@ public class SymbolInfo {
     public Boolean getIsMutable() {
         return isMutable;
     }
-
-    public void setType(String type) {
-        this.type = type;
+    
+    public int[] getDimensions() {
+    	return dimensions;
+    }
+    
+    public int getDimensionsSize() {
+    	return dimensions != null? dimensions.length : 1;
     }
 
     public void setIsInitialized(Boolean isInitialized) {
         this.isInitialized = isInitialized;
-    }
-
-    public void setIsMutable(Boolean isMutable) {
-        this.isMutable = isMutable;
     }
 
     @Override

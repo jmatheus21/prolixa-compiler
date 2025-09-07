@@ -1,10 +1,10 @@
 package prolixa.symboltable;
 
-import java.util.Objects;
-
 public class HashTableKey {
     
     private String key;
+    private final int SIZE = 101;
+    private final int SHIFT = 4;
 
     public HashTableKey (String key) {
         this.key = key;
@@ -16,7 +16,11 @@ public class HashTableKey {
 
     @Override
     public int hashCode () {
-        return Objects.hashCode(key);
+        int temp = 0;
+        for (int i = 0; i < key.length(); i++) {
+            temp = ((temp << SHIFT) + key.charAt(i)) % SIZE;
+        }
+        return temp;
     }
 
     @Override
@@ -24,6 +28,11 @@ public class HashTableKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HashTableKey obj = (HashTableKey) o;
-        return key == obj.key;
+        return key.equals(obj.key);
+    }
+
+    @Override
+    public String toString () {
+        return String.format("Chave: %s\n", key);
     }
 }

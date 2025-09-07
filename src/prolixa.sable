@@ -203,7 +203,7 @@ Productions
  	
  exp_term {-> a_exp} =
     {var} var {-> New a_exp.a_exp_var(var.a_var)}
- 	|{parenteses} par_esq exp par_dir {-> exp.a_exp}
+ 	|{parenteses} par_esq exp par_dir {-> New a_exp.a_exp_parenteses(exp.a_exp)}
  	|{valor} valor {-> valor.a_exp};
  
  Abstract Syntax Tree
@@ -240,6 +240,7 @@ Productions
  	| {a_exp_div_int} [dir]:a_exp [esq]:a_exp
  	| {a_exp_negativo} a_exp
  	| {a_exp_not} a_exp
+ 	| {a_exp_parenteses} a_exp
  	| {a_number_val} number_val
  	| {a_symbol_val} symbol_val
  	| {a_string} string

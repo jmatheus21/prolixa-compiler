@@ -1,4 +1,4 @@
-package prolixa;
+package prolixa.prolixa;
 
 /*
  * NOTES

@@ -40,6 +40,7 @@ public interface Analysis extends Switch
     void caseAAExpDivIntAExp(AAExpDivIntAExp node);
     void caseAAExpNegativoAExp(AAExpNegativoAExp node);
     void caseAAExpNotAExp(AAExpNotAExp node);
+    void caseAAExpParentesesAExp(AAExpParentesesAExp node);
     void caseAANumberValAExp(AANumberValAExp node);
     void caseAASymbolValAExp(AASymbolValAExp node);
     void caseAAStringAExp(AAStringAExp node);

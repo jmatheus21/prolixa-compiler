@@ -1,4 +1,5 @@
-package prolixa;
+package prolixa.prolixa;
+
 import prolixa.lexer.*;
 import prolixa.node.*;
 import prolixa.parser.*;
@@ -10,7 +11,7 @@ public class Main
 	{
 		try
 		{
-			String arquivo = "testcode/test.prlx";
+			String arquivo = "teste/teste.prlx";
 
 			Parser p = 
 					new Parser(
@@ -21,7 +22,8 @@ public class Main
 				    	   
 		    Start tree = p.parse();
 
-		    tree.apply(new ASTDisplay());
+		    //tree.apply(new ASTDisplay());
+		    tree.apply(new SemanticAnalyser());
 		}
 		catch(Exception e)
 		{
